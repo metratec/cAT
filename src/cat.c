@@ -410,8 +410,18 @@ static int read_cmd_char(struct cat_object *self)
 {
         assert(self != NULL);
 
-        if (self->io->read(&self->current_char) == 0)
-                return 0;
+        bool cr = self->current_char == '\r';
+
+        // read next character
+        if (self->io->read(&self->current_char) == 0) {
+                if (cr) {
+                        // don't terminate yet, return "fake" \n
+                        self->current_char = '\n';
+                        return 1;
+                } else {
+                        return 0;
+                }
+        }
 
         if (self->state != CAT_STATE_PARSE_COMMAND_ARGS)
                 self->current_char = to_upper(self->current_char);
