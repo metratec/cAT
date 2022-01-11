@@ -17,7 +17,7 @@ set_target_properties( cat PROPERTIES VERSION 0.10.1 SOVERSION 1 )
 target_compile_options( cat PRIVATE -Werror -Wall -Wextra -pedantic )
 
 install( TARGETS cat DESTINATION lib )
-install( FILES src/cat.h src/cat_std.h DESTINATION include/cat )
+install( FILES src/cat.h src/stdcat.h DESTINATION include/cat )
 
 add_executable( basic_std example/basic_std.c )
 target_link_libraries( basic_std cat)

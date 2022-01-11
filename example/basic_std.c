@@ -30,7 +30,7 @@ SOFTWARE.
 #include <assert.h>
 
 #include "../src/cat.h"
-#include "../src/cat_std.h"
+#include "../src/stdcat.h"
 
 /* variables assigned to print command */
 static uint8_t x;
@@ -137,6 +137,9 @@ static int write_char(char ch)
 static int read_char(char *ch)
 {
         *ch = getc(stdin);
+        if (cat_echo) {
+                write_char(*ch);
+        }
         return 1;
 }
 

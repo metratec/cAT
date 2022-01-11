@@ -22,21 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CAT_STD_H
-#define CAT_STD_H
+#ifndef STD_CAT_H
+#define STD_CAT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
+#include <assert.h>
+
 #include "cat.h"
 
-static struct cat_command_group std_cmd_group;
+
+/* Use this flag in the read function to check whether commands should be echoed to the sender */
+uint8_t cat_echo;
+
+
+/* Standard commands that can optionally be added to the applications main command group */
+struct cat_command_group std_cmd_group;
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CAT_STD_H */
+#endif /* STD_CAT_H */
