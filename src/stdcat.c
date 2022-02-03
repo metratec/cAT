@@ -18,7 +18,7 @@ static int echo_write(const struct cat_variable *var, size_t write_size)
 }
 
 
-struct cat_variable std_vars[] = {
+struct cat_variable echo_vars[] = {
     {
         .type = CAT_VAR_UINT_DEC,
         .data = &cat_echo,
@@ -33,8 +33,14 @@ struct cat_command std_cmds[] = {
     {
         .name = "+E",
         .description = "Whether to echo commands back to the sender",
-        .var = std_vars,
-        .var_num = sizeof(std_vars) / sizeof(std_vars[0]),
+        .var = echo_vars,
+        .var_num = sizeof(echo_vars) / sizeof(echo_vars[0]),
+    },
+    {
+        .name = "E",
+        .description = "Whether to echo commands back to the sender",
+        .var = echo_vars,
+        .var_num = sizeof(echo_vars) / sizeof(echo_vars[0]),
     }
 };
 
