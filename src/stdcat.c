@@ -1,7 +1,7 @@
 #include "stdcat.h"
 
 
-uint8_t cat_echo = false;
+uint8_t cat_echo = true;
 
 
 static int echo_write(const struct cat_variable *var, size_t write_size)
@@ -9,12 +9,18 @@ static int echo_write(const struct cat_variable *var, size_t write_size)
     assert(var != NULL);
     assert(write_size == 1);
 
-    // clamp values between 0 and 1
+    // remember previous value to reset on invalid input
+    static uint8_t prev_cat_echo = true;
+
+    // boolean-like must be 0 or 1
     if (cat_echo > 1) {
-        cat_echo = 1;
+        cat_echo = prev_cat_echo;
+        return CAT_RETURN_STATE_ERROR;
     }
 
-    return 0;
+    prev_cat_echo = cat_echo;
+
+    return CAT_RETURN_STATE_DATA_OK;
 }
 
 
