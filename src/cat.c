@@ -2217,6 +2217,7 @@ static cat_return_state call_cmd_read_by_fsm(struct cat_object *self, cat_fsm_ty
                 return cmd->read(cmd, (uint8_t*)get_unsolicited_buf(self), &self->unsolicited_fsm.position, get_unsolicited_buf_size(self));
         default:
                 assert(false);
+                return CAT_STATE_ERROR;
         }
 }
 
@@ -2291,6 +2292,7 @@ static cat_return_state call_cmd_test_by_fsm(struct cat_object *self, cat_fsm_ty
                 return cmd->test(cmd, (uint8_t*)get_unsolicited_buf(self), &self->unsolicited_fsm.position, get_unsolicited_buf_size(self));
         default:
                 assert(false);
+                return CAT_STATE_ERROR;
         }
 }
 
