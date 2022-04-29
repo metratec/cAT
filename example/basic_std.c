@@ -137,7 +137,7 @@ static int write_char(char ch)
 static int read_char(char *ch)
 {
         *ch = getc(stdin);
-        if (cat_echo) {
+        if (get_cat_echo()) {
                 write_char(*ch);
         }
         return 1;

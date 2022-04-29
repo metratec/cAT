@@ -3,6 +3,10 @@
 
 uint8_t cat_echo = true;
 
+uint8_t get_cat_echo()
+{
+    return cat_echo;
+}
 
 static int echo_write(const struct cat_variable *var, size_t write_size)
 {
@@ -55,3 +59,8 @@ struct cat_command_group std_cmd_group = {
     .cmd = std_cmds,
     .cmd_num = sizeof(std_cmds) / sizeof(std_cmds[0]),
 };
+
+struct cat_command_group *get_std_cmd_group()
+{
+        return &std_cmd_group;
+}
