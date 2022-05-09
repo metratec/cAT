@@ -36,11 +36,11 @@ extern "C" {
 
 
 /* Use this flag in the read function to check whether commands should be echoed to the sender */
-uint8_t cat_echo;
+extern uint8_t cat_echo;
 
 
 /* Standard commands that can optionally be added to the applications main command group */
-struct cat_command_group std_cmd_group;
+extern struct cat_command_group std_cmd_group;
 
 
 #ifdef __cplusplus
