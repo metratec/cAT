@@ -39,7 +39,7 @@ struct cat_variable;
 
 #ifndef CAT_UNSOLICITED_CMD_BUFFER_SIZE
 /* unsolicited command buffer default size (can by override externally during compilation) */
-#define CAT_UNSOLICITED_CMD_BUFFER_SIZE     ((size_t)(1))
+#define CAT_UNSOLICITED_CMD_BUFFER_SIZE ((size_t)(1))
 #endif
 
 /* enum type with variable type definitions */
@@ -215,14 +215,7 @@ typedef enum {
 } cat_state;
 
 /* enum type with type of command request */
-typedef enum {
-        CAT_CMD_TYPE_NONE = -1,
-        CAT_CMD_TYPE_RUN,
-        CAT_CMD_TYPE_READ,
-        CAT_CMD_TYPE_WRITE,
-        CAT_CMD_TYPE_TEST,
-        CAT_CMD_TYPE__TOTAL_NUM
-} cat_cmd_type;
+typedef enum { CAT_CMD_TYPE_NONE = -1, CAT_CMD_TYPE_RUN, CAT_CMD_TYPE_READ, CAT_CMD_TYPE_WRITE, CAT_CMD_TYPE_TEST, CAT_CMD_TYPE__TOTAL_NUM } cat_cmd_type;
 
 /* structure with io interface functions */
 struct cat_io_interface {
@@ -265,7 +258,7 @@ struct cat_command_group {
 
 /* structure with at command parser descriptor */
 struct cat_descriptor {
-        struct cat_command_group* const *cmd_group; /* pointer to array of commands group descriptor */
+        struct cat_command_group *const *cmd_group; /* pointer to array of commands group descriptor */
         size_t cmd_group_num; /* number of commands group in array */
 
         uint8_t *buf; /* pointer to working buffer (used to parse command argument) */
@@ -291,11 +284,11 @@ typedef enum {
         CAT_UNSOLICITED_STATE_READ_LOOP,
         CAT_UNSOLICITED_STATE_TEST_LOOP,
         CAT_UNSOLICITED_STATE_FLUSH_IO_WRITE_WAIT,
-        CAT_UNSOLICITED_STATE_FLUSH_IO_WRITE,        
+        CAT_UNSOLICITED_STATE_FLUSH_IO_WRITE,
         CAT_UNSOLICITED_STATE_AFTER_FLUSH_RESET,
         CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK,
         CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_READ_ARGS,
-        CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS,    
+        CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS,
 } cat_unsolicited_state;
 
 /* enum type with fsm type */
@@ -318,7 +311,7 @@ struct cat_unsolicited_fsm {
         char const *write_buf; /* working buffer pointer used for asynch writing to io */
         int write_state; /* before, data, after flush io write state */
         cat_unsolicited_state write_state_after; /* parser state to set after flush io write */
-        
+
         struct cat_unsolicited_cmd unsolicited_cmd_buffer[CAT_UNSOLICITED_CMD_BUFFER_SIZE]; /* buffer with unsolicited commands used to unsolicited event */
         size_t unsolicited_cmd_buffer_tail; /* tail index of unsolicited cmd buffer */
         size_t unsolicited_cmd_buffer_head; /* head index of unsolicited cmd buffer */
@@ -350,6 +343,8 @@ struct cat_object {
         char const *write_buf; /* working buffer pointer used for asynch writing to io */
         int write_state; /* before, data, after flush io write state */
         cat_state write_state_after; /* parser state to set after flush io write */
+
+        bool require_string_quotes; /* whether buffer string var data has to be encapsulated by quotes */
 
         struct cat_unsolicited_fsm unsolicited_fsm;
 };
@@ -459,7 +454,7 @@ cat_status cat_hold_exit(struct cat_object *self, cat_status status);
  * @param name command name to search
  * @return pointer to command object, NULL if command not found
  */
-struct cat_command const* cat_search_command_by_name(struct cat_object *self, const char *name);
+struct cat_command const *cat_search_command_by_name(struct cat_object *self, const char *name);
 
 /**
  * Function used to searching registered command group by its name.
@@ -468,7 +463,7 @@ struct cat_command const* cat_search_command_by_name(struct cat_object *self, co
  * @param name command group name to search
  * @return pointer to command group object, NULL if command group not found
  */
-struct cat_command_group const* cat_search_command_group_by_name(struct cat_object *self, const char *name);
+struct cat_command_group const *cat_search_command_group_by_name(struct cat_object *self, const char *name);
 
 /**
  * Function used to searching attached variable to command its name.
@@ -478,7 +473,7 @@ struct cat_command_group const* cat_search_command_group_by_name(struct cat_obje
  * @param name variable name to search
  * @return pointer to command group object, NULL if command group not found
  */
-struct cat_variable const* cat_search_variable_by_name(struct cat_object *self, struct cat_command const *cmd, const char *name);
+struct cat_variable const *cat_search_variable_by_name(struct cat_object *self, struct cat_command const *cmd, const char *name);
 
 /**
  * Function used to check what command is currently processed.
@@ -489,7 +484,7 @@ struct cat_variable const* cat_search_variable_by_name(struct cat_object *self, 
  * @param fsm type of internal state machine to check current command
  * @return pointer to command which is currently processed, NULL if no command is processed
  */
-struct cat_command const* cat_get_processed_command(struct cat_object *self, cat_fsm_type fsm);
+struct cat_command const *cat_get_processed_command(struct cat_object *self, cat_fsm_type fsm);
 
 /**
  * Function return unsolicited event command status.
