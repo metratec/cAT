@@ -1610,8 +1610,10 @@ static int format_buffer_string(struct cat_object *self, cat_fsm_type fsm)
                 buf_size = var->data_size;
         }
 
-        if (print_string_to_buf(self, "\"", fsm) != 0)
-                return -1;
+        if (self->require_string_quotes) {
+                if (print_string_to_buf(self, "\"", fsm) != 0)
+                        return -1;
+        }
 
         buf = var->data;
         for (i = 0; i < buf_size; i++) {
@@ -1651,8 +1653,10 @@ static int format_buffer_string(struct cat_object *self, cat_fsm_type fsm)
                 }
         }
 
-        if (print_string_to_buf(self, "\"", fsm) != 0)
-                return -1;
+        if (self->require_string_quotes) {
+                if (print_string_to_buf(self, "\"", fsm) != 0)
+                        return -1;
+        }
 
         return 0;
 }
