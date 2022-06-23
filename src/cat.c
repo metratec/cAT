@@ -1232,7 +1232,7 @@ static int parse_buffer_string(struct cat_object *self)
                         state = 1;
                         break;
                 case 1:
-                        if (ch == 0) {
+                        if (ch == 0 || ch == ',') {
                                 if (!self->require_string_quotes) {
                                         self->position--;
                                         state = 3;
@@ -1264,6 +1264,9 @@ static int parse_buffer_string(struct cat_object *self)
                                 break;
                         case '"':
                                 ch = '"';
+                                break;
+                        case ',':
+                                ch = ',';
                                 break;
                         case 'n':
                                 ch = '\n';
