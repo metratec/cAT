@@ -47,7 +47,7 @@ Printing something special at (X,Y).                    # Automatic response
 OK                                                      # Automatic acknowledge
 
 AT+PRINT?                                               # READ command
-+PRINT=0,0,""                                           # Automatic response
++PRINT: 0,0,""                                           # Automatic response
 OK                                                      # Automatic acknowledge
 
 AT+PRINT=xyz,-2                                         # WRITE command
@@ -65,22 +65,22 @@ OK                                                      # Automatic acknowledge
 
 ```console
 AT+START=?                                              # TEST command
-+START=<MODE:UINT32[WO]>                                # Automatic response
++START: <MODE:UINT32[WO]>                                # Automatic response
 Start scanning after write (0 - wifi, 1 - bluetooth).   # Automatic response
 OK                                                      # Automatic acknowledge
 
 AT+START=0                                              # WRITE command
-+SCAN=-10,"wifi1"                                       # Unsolicited read response
-+SCAN=-50,"wifi2"                                       # Unsolicited read response
-+SCAN=-20,"wifi3"                                       # Unsolicited read response
++SCAN: -10,"wifi1"                                       # Unsolicited read response
++SCAN: -50,"wifi2"                                       # Unsolicited read response
++SCAN: -20,"wifi3"                                       # Unsolicited read response
 OK                                                      # Unsolicited acknowledge
 
 AT+START=1                                              # WRITE command
-+SCAN=-20,"bluetooth1"                                  # Unsolicited read response
++SCAN: -20,"bluetooth1"                                  # Unsolicited read response
 OK                                                      # Unsolicited acknowledge
 
 AT+SCAN=?                                               # TEST command
-+SCAN=<RSSI:INT32[RO]>,<SSID:STRING[RO]>                # Automatic response
++SCAN: <RSSI:INT32[RO]>,<SSID:STRING[RO]>                # Automatic response
 Scan result record.                                     # Automatic response
 OK                                                      # Automatic acknowledge
 ```

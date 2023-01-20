@@ -967,7 +967,7 @@ static void start_processing_format_read_args(struct cat_object *self, cat_fsm_t
                 return;
         }
 
-        if (print_string_to_buf(self, "=", fsm) != 0) {
+        if (print_string_to_buf(self, ": ", fsm) != 0) {
                 end_processing_with_error(self, fsm);
                 return;
         }
