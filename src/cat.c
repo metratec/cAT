@@ -1380,7 +1380,6 @@ static cat_status parse_write_args(struct cat_object *self)
 
         assert(self != NULL);
 
-        printf("parse write args\n");
         switch (self->var->type) {
         case CAT_VAR_INT_DEC:
                 stat = parse_int_decimal(self, &val);
