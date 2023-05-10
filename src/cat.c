@@ -34,7 +34,8 @@ SOFTWARE.
 
 #define CAT_WRITE_STATE_BEFORE (0)
 #define CAT_WRITE_STATE_MAIN_BUFFER (1U)
-#define CAT_WRITE_STATE_AFTER (2U)
+#define CAT_WRITE_STATE_MAIN_BUFFER_NO_EOL (2U)
+#define CAT_WRITE_STATE_AFTER (3U)
 
 static inline char *get_atcmd_buf(struct cat_object *self)
 {
@@ -284,26 +285,28 @@ cat_status cat_is_unsolicited_event_buffered(struct cat_object *self, struct cat
 static const char *get_new_line_chars(struct cat_object *self)
 {
         static const char *crlf = "\r\n";
-        return &crlf[(self->cr_flag != false) ? 0 : 1];
+        return crlf;
 }
 
-static void start_flush_io_buffer(struct cat_object *self, cat_state state_after)
+static void start_flush_io_buffer(struct cat_object *self, cat_state state_after, bool start_cr, bool print_eol)
 {
         assert(self != NULL);
 
         self->position = 0;
-        self->write_buf = get_new_line_chars(self);
+        self->print_eol = print_eol;
+        self->write_buf = start_cr ? "\r" : get_new_line_chars(self);
         self->write_state = CAT_WRITE_STATE_BEFORE;
         self->write_state_after = state_after;
         self->state = CAT_STATE_FLUSH_IO_WRITE_WAIT;
 }
 
-static void unsolicited_start_flush_io_buffer(struct cat_object *self, cat_unsolicited_state state_after)
+static void unsolicited_start_flush_io_buffer(struct cat_object *self, cat_unsolicited_state state_after, bool start_cr, bool print_eol)
 {
         assert(self != NULL);
 
         self->unsolicited_fsm.position = 0;
-        self->unsolicited_fsm.write_buf = get_new_line_chars(self);
+        self->print_eol = print_eol;
+        self->unsolicited_fsm.write_buf = start_cr ? "\r" : get_new_line_chars(self);
         self->unsolicited_fsm.write_state = CAT_WRITE_STATE_BEFORE;
         self->unsolicited_fsm.write_state_after = state_after;
         self->unsolicited_fsm.state = CAT_UNSOLICITED_STATE_FLUSH_IO_WRITE_WAIT;
@@ -325,7 +328,8 @@ static void ack_error(struct cat_object *self)
         assert(self != NULL);
 
         strncpy(get_atcmd_buf(self), "ERROR", get_atcmd_buf_size(self));
-        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_RESET);
+        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_RESET, false, true);
+        return;
 }
 
 static void ack_ok(struct cat_object *self)
@@ -333,7 +337,8 @@ static void ack_ok(struct cat_object *self)
         assert(self != NULL);
 
         strncpy(get_atcmd_buf(self), "OK", get_atcmd_buf_size(self));
-        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_RESET);
+        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_RESET, false, true);
+        return;
 }
 
 static size_t get_left_buffer_space_by_fsm(struct cat_object *self, cat_fsm_type fsm)
@@ -689,10 +694,10 @@ static int print_response_test(struct cat_object *self, cat_fsm_type fsm)
 
         switch (fsm) {
         case CAT_FSM_TYPE_ATCMD:
-                start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_OK);
+                start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_OK, false, true);
                 break;
         case CAT_FSM_TYPE_UNSOLICITED:
-                unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK);
+                unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK, false, true);
                 break;
         default:
                 assert(false);
@@ -1852,10 +1857,10 @@ static cat_status format_read_args(struct cat_object *self, cat_fsm_type fsm)
 
         switch (fsm) {
         case CAT_FSM_TYPE_ATCMD:
-                start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_OK);
+                start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_OK, false, true);
                 break;
         case CAT_FSM_TYPE_UNSOLICITED:
-                unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK);
+                unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK, false, true);
                 break;
         default:
                 assert(false);
@@ -2239,10 +2244,10 @@ static cat_status process_read_loop(struct cat_object *self, cat_fsm_type fsm)
         case CAT_RETURN_STATE_DATA_OK:
                 switch (fsm) {
                 case CAT_FSM_TYPE_ATCMD:
-                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_OK);
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_OK, false, false);
                         break;
                 case CAT_FSM_TYPE_UNSOLICITED:
-                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK);
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK, false, true);
                         break;
                 default:
                         assert(false);
@@ -2251,10 +2256,46 @@ static cat_status process_read_loop(struct cat_object *self, cat_fsm_type fsm)
         case CAT_RETURN_STATE_DATA_NEXT:
                 switch (fsm) {
                 case CAT_FSM_TYPE_ATCMD:
-                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_READ_ARGS);
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_READ_ARGS, false, true);
                         break;
                 case CAT_FSM_TYPE_UNSOLICITED:
-                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_READ_ARGS);
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_READ_ARGS, false, true);
+                        break;
+                default:
+                        assert(false);
+                }
+                break;
+        case CAT_RETURN_STATE_DATA_FIRST:
+                switch (fsm) {
+                case CAT_FSM_TYPE_ATCMD:
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_READ_ARGS, false, false);
+                        break;
+                case CAT_FSM_TYPE_UNSOLICITED:
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_READ_ARGS, false, false);
+                        break;
+                default:
+                        assert(false);
+                }
+                break;
+        case CAT_RETURN_STATE_DATA_CONTD:
+                switch (fsm) {
+                case CAT_FSM_TYPE_ATCMD:
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_READ_ARGS, true, false);
+                        break;
+                case CAT_FSM_TYPE_UNSOLICITED:
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_READ_ARGS, true, false);
+                        break;
+                default:
+                        assert(false);
+                }
+                break;
+        case CAT_RETURN_STATE_DATA_LAST:
+                switch (fsm) {
+                case CAT_FSM_TYPE_ATCMD:
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_READ_ARGS, true, true);
+                        break;
+                case CAT_FSM_TYPE_UNSOLICITED:
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_READ_ARGS, true, true);
                         break;
                 default:
                         assert(false);
@@ -2314,10 +2355,10 @@ static cat_status process_test_loop(struct cat_object *self, cat_fsm_type fsm)
         case CAT_RETURN_STATE_DATA_OK:
                 switch (fsm) {
                 case CAT_FSM_TYPE_ATCMD:
-                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_OK);
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_OK, false, true);
                         break;
                 case CAT_FSM_TYPE_UNSOLICITED:
-                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK);
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK, false, true);
                         break;
                 default:
                         assert(false);
@@ -2326,10 +2367,10 @@ static cat_status process_test_loop(struct cat_object *self, cat_fsm_type fsm)
         case CAT_RETURN_STATE_DATA_NEXT:
                 switch (fsm) {
                 case CAT_FSM_TYPE_ATCMD:
-                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS);
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS, false, true);
                         break;
                 case CAT_FSM_TYPE_UNSOLICITED:
-                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS);
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS, false, true);
                         break;
                 default:
                         assert(false);
@@ -2476,13 +2517,14 @@ static cat_status process_io_write(struct cat_object *self)
                 case CAT_WRITE_STATE_BEFORE:
                         self->position = 0;
                         self->write_buf = get_atcmd_buf(self);
-                        self->write_state = CAT_WRITE_STATE_MAIN_BUFFER;
+                        self->write_state = self->print_eol ? CAT_WRITE_STATE_MAIN_BUFFER : CAT_WRITE_STATE_MAIN_BUFFER_NO_EOL;
                         break;
                 case CAT_WRITE_STATE_MAIN_BUFFER:
                         self->position = 0;
                         self->write_buf = get_new_line_chars(self);
                         self->write_state = CAT_WRITE_STATE_AFTER;
                         break;
+                case CAT_WRITE_STATE_MAIN_BUFFER_NO_EOL:
                 case CAT_WRITE_STATE_AFTER:
                         self->state = self->write_state_after;
                         break;
@@ -2508,13 +2550,14 @@ static cat_status unsolicited_process_io_write(struct cat_object *self)
                 case CAT_WRITE_STATE_BEFORE:
                         self->unsolicited_fsm.position = 0;
                         self->unsolicited_fsm.write_buf = get_unsolicited_buf(self);
-                        self->unsolicited_fsm.write_state = CAT_WRITE_STATE_MAIN_BUFFER;
+                        self->unsolicited_fsm.write_state = self->print_eol ? CAT_WRITE_STATE_MAIN_BUFFER : CAT_WRITE_STATE_MAIN_BUFFER_NO_EOL;
                         break;
                 case CAT_WRITE_STATE_MAIN_BUFFER:
                         self->unsolicited_fsm.position = 0;
                         self->unsolicited_fsm.write_buf = get_new_line_chars(self);
                         self->unsolicited_fsm.write_state = CAT_WRITE_STATE_AFTER;
                         break;
+                case CAT_WRITE_STATE_MAIN_BUFFER_NO_EOL:
                 case CAT_WRITE_STATE_AFTER:
                         self->unsolicited_fsm.state = self->unsolicited_fsm.write_state_after;
                         break;

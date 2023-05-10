@@ -113,6 +113,9 @@ typedef enum {
         CAT_RETURN_STATE_ERROR = -1, /* immediatly error acknowledge */
         CAT_RETURN_STATE_DATA_OK, /* send current data buffer followed by ok acknowledge */
         CAT_RETURN_STATE_DATA_NEXT, /* send current data buffer and go to next callback iteration */
+        CAT_RETURN_STATE_DATA_FIRST, /* send data with prepended \r\n and no line end */
+        CAT_RETURN_STATE_DATA_CONTD, /* send data with prepended \r and no line end */
+        CAT_RETURN_STATE_DATA_LAST, /* send data with prepended \r and eol */
         CAT_RETURN_STATE_NEXT, /* go to next callback iteration without sending anything */
         CAT_RETURN_STATE_OK, /* immediatly ok acknowledge */
         CAT_RETURN_STATE_HOLD, /* enable hold parser state */
@@ -343,6 +346,7 @@ struct cat_object {
         char const *write_buf; /* working buffer pointer used for asynch writing to io */
         int write_state; /* before, data, after flush io write state */
         cat_state write_state_after; /* parser state to set after flush io write */
+        bool print_eol; /* Flag to print eol after response */
 
         bool require_string_quotes; /* whether buffer string var data has to be encapsulated by quotes */
 
