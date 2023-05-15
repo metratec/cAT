@@ -112,6 +112,7 @@ struct cat_variable {
 typedef enum {
         CAT_RETURN_STATE_ERROR = -1, /* immediatly error acknowledge */
         CAT_RETURN_STATE_DATA_OK, /* send current data buffer followed by ok acknowledge */
+        CAT_RETURN_STATE_DATA_ERROR, /* send current data buffer followed by error acknowledge */
         CAT_RETURN_STATE_DATA_NEXT, /* send current data buffer and go to next callback iteration */
         CAT_RETURN_STATE_DATA_FIRST, /* send data with prepended \r\n and no line end */
         CAT_RETURN_STATE_DATA_CONTD, /* send data with prepended \r and no line end */
@@ -212,6 +213,7 @@ typedef enum {
         CAT_STATE_FLUSH_IO_WRITE,
         CAT_STATE_AFTER_FLUSH_RESET,
         CAT_STATE_AFTER_FLUSH_OK,
+        CAT_STATE_AFTER_FLUSH_ERROR,
         CAT_STATE_AFTER_FLUSH_FORMAT_READ_ARGS,
         CAT_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS,
         CAT_STATE_PRINT_CMD,
@@ -290,6 +292,7 @@ typedef enum {
         CAT_UNSOLICITED_STATE_FLUSH_IO_WRITE,
         CAT_UNSOLICITED_STATE_AFTER_FLUSH_RESET,
         CAT_UNSOLICITED_STATE_AFTER_FLUSH_OK,
+        CAT_UNSOLICITED_STATE_AFTER_FLUSH_ERROR,
         CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_READ_ARGS,
         CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS,
 } cat_unsolicited_state;
