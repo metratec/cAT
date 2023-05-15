@@ -417,6 +417,7 @@ int main(int argc, char **argv)
         struct cat_object at;
 
         cat_init(&at, &desc, &iface, NULL);
+        at.require_string_quotes = true;
 
         prepare_input("\nAT#HELP\n");
         while (cat_service(&at) != 0) {};
