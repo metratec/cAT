@@ -36,6 +36,7 @@ SOFTWARE.
 #define CAT_WRITE_STATE_MAIN_BUFFER (1U)
 #define CAT_WRITE_STATE_MAIN_BUFFER_NO_EOL (2U)
 #define CAT_WRITE_STATE_AFTER (3U)
+#define CAT_WRITE_STATE_ECHO (4U)
 
 static inline char *get_atcmd_buf(struct cat_object *self)
 {
@@ -295,7 +296,7 @@ static void start_flush_io_buffer(struct cat_object *self, cat_state state_after
         self->position = 0;
         self->print_eol = print_eol;
         self->write_buf = start_cr ? "\r" : get_new_line_chars(self);
-        self->write_state = CAT_WRITE_STATE_BEFORE;
+        self->write_state = self->cmd_echo ? CAT_WRITE_STATE_ECHO : CAT_WRITE_STATE_BEFORE;
         self->write_state_after = state_after;
         self->state = CAT_STATE_FLUSH_IO_WRITE_WAIT;
 }
@@ -307,7 +308,7 @@ static void unsolicited_start_flush_io_buffer(struct cat_object *self, cat_unsol
         self->unsolicited_fsm.position = 0;
         self->print_eol = print_eol;
         self->unsolicited_fsm.write_buf = start_cr ? "\r" : get_new_line_chars(self);
-        self->unsolicited_fsm.write_state = CAT_WRITE_STATE_BEFORE;
+        self->unsolicited_fsm.write_state = (self->cmd_echo && self->state == CAT_STATE_HOLD) ? CAT_WRITE_STATE_ECHO : CAT_WRITE_STATE_BEFORE;
         self->unsolicited_fsm.write_state_after = state_after;
         self->unsolicited_fsm.state = CAT_UNSOLICITED_STATE_FLUSH_IO_WRITE_WAIT;
 }
@@ -501,10 +502,26 @@ void cat_init(struct cat_object *self, const struct cat_descriptor *desc, const 
         self->hold_state_flag = false;
         self->hold_exit_status = 0;
         self->require_string_quotes = false;
+        self->cmd_echo = false;
+        self->cmd_echo_request = false;
+        memset(self->desc->echo_buf, 0, self->desc->echo_buf_size);
+        self->echo_len = 0;
 
         reset_state(self);
 
         unsolicited_init(self);
+}
+
+static void add_echo_char(struct cat_object *self, uint8_t ch)
+{
+        /* -1 to protect the \0 terminator */
+        if (self->echo_len >= self->desc->echo_buf_size - 1)
+                return;
+        else if (self->cmd_echo == false)
+                return;
+
+        self->desc->echo_buf[self->echo_len] = ch;
+        self->echo_len++;
 }
 
 static cat_status error_state(struct cat_object *self)
@@ -513,6 +530,8 @@ static cat_status error_state(struct cat_object *self)
 
         if (read_cmd_char(self) == 0)
                 return CAT_STATUS_OK;
+
+        add_echo_char(self, self->current_char);
 
         switch (self->current_char) {
         case '\n':
@@ -547,6 +566,8 @@ static cat_status parse_prefix(struct cat_object *self)
 
         if (read_cmd_char(self) == 0)
                 return CAT_STATUS_OK;
+
+        add_echo_char(self, self->current_char);
 
         switch (self->current_char) {
         case 'T':
@@ -713,9 +734,12 @@ static cat_status parse_command(struct cat_object *self)
         if (read_cmd_char(self) == 0)
                 return CAT_STATUS_OK;
 
+        add_echo_char(self, self->current_char);
+
         switch (self->current_char) {
         case '\n':
                 if (self->length != 0) {
+                        add_echo_char(self, '\0');
                         prepare_search_command(self);
                         self->state = CAT_STATE_SEARCH_COMMAND;
                         break;
@@ -849,6 +873,8 @@ static cat_status wait_read_acknowledge(struct cat_object *self)
         if (read_cmd_char(self) == 0)
                 return CAT_STATUS_OK;
 
+        add_echo_char(self, self->current_char);
+
         switch (self->current_char) {
         case '\n':
                 prepare_search_command(self);
@@ -913,6 +939,8 @@ static cat_status wait_test_acknowledge(struct cat_object *self)
 
         if (read_cmd_char(self) == 0)
                 return CAT_STATUS_OK;
+
+        add_echo_char(self, self->current_char);
 
         switch (self->current_char) {
         case '\n':
@@ -1897,6 +1925,8 @@ static cat_status parse_command_args(struct cat_object *self)
         if (read_cmd_char(self) == 0)
                 return CAT_STATUS_OK;
 
+        add_echo_char(self, self->current_char);
+
         switch (self->current_char) {
         case '\n':
                 if (self->cmd->only_test != false) {
@@ -2002,6 +2032,12 @@ static cat_status process_idle_state(struct cat_object *self)
 
         if (read_cmd_char(self) == 0)
                 return CAT_STATUS_OK;
+
+        /* Check if echo state should be altered */
+        if (self->cmd_echo_request != self->cmd_echo)
+                self->cmd_echo = self->cmd_echo_request;
+
+        add_echo_char(self, self->current_char);
 
         switch (self->current_char) {
         case 'A':
@@ -2540,7 +2576,14 @@ static cat_status process_io_write(struct cat_object *self)
 
         if (ch == '\0') {
                 switch (self->write_state) {
+                case CAT_WRITE_STATE_ECHO:
+                        self->position = 0;
+                        self->echo_len = 0;
+                        self->write_buf = self->desc->echo_buf;
+                        self->write_state = CAT_WRITE_STATE_BEFORE;
+                        break;
                 case CAT_WRITE_STATE_BEFORE:
+                        memset(self->desc->echo_buf, 0, self->desc->echo_buf_size);
                         self->position = 0;
                         self->write_buf = get_atcmd_buf(self);
                         self->write_state = self->print_eol ? CAT_WRITE_STATE_MAIN_BUFFER : CAT_WRITE_STATE_MAIN_BUFFER_NO_EOL;
@@ -2573,7 +2616,15 @@ static cat_status unsolicited_process_io_write(struct cat_object *self)
 
         if (ch == '\0') {
                 switch (self->unsolicited_fsm.write_state) {
+                case CAT_WRITE_STATE_ECHO:
+                        self->echo_len = 0;
+                        self->unsolicited_fsm.position = 0;
+                        self->unsolicited_fsm.write_buf = self->desc->echo_buf;
+                        self->unsolicited_fsm.write_state = CAT_WRITE_STATE_BEFORE;
+                        break;
                 case CAT_WRITE_STATE_BEFORE:
+                        if (self->state == CAT_STATE_HOLD)
+                                memset(self->desc->echo_buf, 0, self->desc->echo_buf_size);
                         self->unsolicited_fsm.position = 0;
                         self->unsolicited_fsm.write_buf = get_unsolicited_buf(self);
                         self->unsolicited_fsm.write_state = self->print_eol ? CAT_WRITE_STATE_MAIN_BUFFER : CAT_WRITE_STATE_MAIN_BUFFER_NO_EOL;
@@ -2769,4 +2820,9 @@ cat_status cat_service(struct cat_object *self)
                 return CAT_STATUS_ERROR_MUTEX_UNLOCK;
 
         return s;
+}
+
+void cat_set_command_echo(struct cat_object *self, bool val)
+{
+        self->cmd_echo_request = val;
 }

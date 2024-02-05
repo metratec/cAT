@@ -269,6 +269,9 @@ struct cat_descriptor {
         uint8_t *buf; /* pointer to working buffer (used to parse command argument) */
         size_t buf_size; /* working buffer length */
 
+        uint8_t *echo_buf; /* Buffer for command echo */
+        size_t echo_buf_size; /* echo buffer length */
+
         /* optional unsolicited buffer, if not configured (NULL) */
         /* then the buf will be divided into two smaller buffers */
         uint8_t *unsolicited_buf; /* pointer to unsolicited working buffer (used to parse command argument) */
@@ -336,6 +339,7 @@ struct cat_object {
         size_t position; /* position of actually parsed char in arguments string */
         size_t write_size; /* size of parsed buffer hex or buffer string */
         size_t commands_num; /* computed total number of registered commands */
+        size_t echo_len; /* The length of the echo in the echo buffer */
 
         struct cat_command const *cmd; /* pointer to current command descriptor */
         struct cat_variable const *var; /* pointer to current variable descriptor */
@@ -350,6 +354,8 @@ struct cat_object {
         int write_state; /* before, data, after flush io write state */
         cat_state write_state_after; /* parser state to set after flush io write */
         bool print_eol; /* Flag to print eol after response */
+        bool cmd_echo; /* Flag to print a command echo before the response */
+        bool cmd_echo_request; /* Flag if echo is requested */
 
         bool require_string_quotes; /* whether buffer string var data has to be encapsulated by quotes */
 
@@ -505,6 +511,14 @@ struct cat_command const *cat_get_processed_command(struct cat_object *self, cat
  *         CAT_STATUS_BUSY - command is waiting in buffer or is processed
  */
 cat_status cat_is_unsolicited_event_buffered(struct cat_object *self, struct cat_command const *cmd, cat_cmd_type type);
+
+/**
+ * Enable or disable the command echo.
+ * 
+ * @param self pointer to at command parser object
+ * @param val Set to @c true to enable echo. Set to @c false otherwise.
+ */
+void cat_set_command_echo(struct cat_object *self, bool val);
 
 #ifdef __cplusplus
 }
