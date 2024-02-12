@@ -190,7 +190,7 @@ static cat_status pop_unsolicited_cmd(struct cat_object *self, struct cat_comman
         return CAT_STATUS_OK;
 }
 
-static cat_status push_unsolicited_cmd(struct cat_object *self, struct cat_command const *cmd, cat_cmd_type type)
+static cat_status push_unsolicited_cmd(struct cat_object *self, struct cat_command const *cmd, cat_cmd_type type, bool echo)
 {
         struct cat_unsolicited_cmd *item;
 
@@ -210,6 +210,7 @@ static cat_status push_unsolicited_cmd(struct cat_object *self, struct cat_comma
                 self->unsolicited_fsm.unsolicited_cmd_buffer_tail = 0;
 
         self->unsolicited_fsm.unsolicited_cmd_buffer_items_count++;
+        self->should_urc_echo = echo;
 
         return CAT_STATUS_OK;
 }
@@ -308,7 +309,7 @@ static void unsolicited_start_flush_io_buffer(struct cat_object *self, cat_unsol
         self->unsolicited_fsm.position = 0;
         self->print_eol = print_eol;
         self->unsolicited_fsm.write_buf = start_cr ? "\r" : get_new_line_chars(self);
-        self->unsolicited_fsm.write_state = (self->cmd_echo && self->state == CAT_STATE_HOLD) ? CAT_WRITE_STATE_ECHO : CAT_WRITE_STATE_BEFORE;
+        self->unsolicited_fsm.write_state = (self->cmd_echo && self->should_urc_echo) ? CAT_WRITE_STATE_ECHO : CAT_WRITE_STATE_BEFORE;
         self->unsolicited_fsm.write_state_after = state_after;
         self->unsolicited_fsm.state = CAT_UNSOLICITED_STATE_FLUSH_IO_WRITE_WAIT;
 }
@@ -504,6 +505,7 @@ void cat_init(struct cat_object *self, const struct cat_descriptor *desc, const 
         self->require_string_quotes = false;
         self->cmd_echo = false;
         self->cmd_echo_request = false;
+        self->should_urc_echo = false;
         memset(self->desc->echo_buf, 0, self->desc->echo_buf_size);
         self->echo_len = 0;
 
@@ -1974,7 +1976,7 @@ static cat_status parse_command_args(struct cat_object *self)
         return CAT_STATUS_BUSY;
 }
 
-cat_status cat_trigger_unsolicited_event(struct cat_object *self, struct cat_command const *cmd, cat_cmd_type type)
+cat_status cat_trigger_unsolicited_event(struct cat_object *self, struct cat_command const *cmd, cat_cmd_type type, bool echo)
 {
         cat_status s;
 
@@ -1985,7 +1987,7 @@ cat_status cat_trigger_unsolicited_event(struct cat_object *self, struct cat_com
         if ((self->mutex != NULL) && (self->mutex->lock() != 0))
                 return CAT_STATUS_ERROR_MUTEX_LOCK;
 
-        s = push_unsolicited_cmd(self, cmd, type);
+        s = push_unsolicited_cmd(self, cmd, type, echo);
 
         if ((self->mutex != NULL) && (self->mutex->unlock() != 0))
                 return CAT_STATUS_ERROR_MUTEX_UNLOCK;
@@ -1993,14 +1995,14 @@ cat_status cat_trigger_unsolicited_event(struct cat_object *self, struct cat_com
         return s;
 }
 
-cat_status cat_trigger_unsolicited_read(struct cat_object *self, struct cat_command const *cmd)
+cat_status cat_trigger_unsolicited_read(struct cat_object *self, struct cat_command const *cmd, bool echo)
 {
-        return cat_trigger_unsolicited_event(self, cmd, CAT_CMD_TYPE_READ);
+        return cat_trigger_unsolicited_event(self, cmd, CAT_CMD_TYPE_READ, echo);
 }
 
-cat_status cat_trigger_unsolicited_test(struct cat_object *self, struct cat_command const *cmd)
+cat_status cat_trigger_unsolicited_test(struct cat_object *self, struct cat_command const *cmd, bool echo)
 {
-        return cat_trigger_unsolicited_event(self, cmd, CAT_CMD_TYPE_TEST);
+        return cat_trigger_unsolicited_event(self, cmd, CAT_CMD_TYPE_TEST, echo);
 }
 
 static void check_unsolicited_buffers(struct cat_object *self)
@@ -2623,7 +2625,7 @@ static cat_status unsolicited_process_io_write(struct cat_object *self)
                         self->unsolicited_fsm.write_state = CAT_WRITE_STATE_BEFORE;
                         break;
                 case CAT_WRITE_STATE_BEFORE:
-                        if (self->state == CAT_STATE_HOLD)
+                        if (self->should_urc_echo)
                                 memset(self->desc->echo_buf, 0, self->desc->echo_buf_size);
                         self->unsolicited_fsm.position = 0;
                         self->unsolicited_fsm.write_buf = get_unsolicited_buf(self);

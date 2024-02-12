@@ -356,6 +356,7 @@ struct cat_object {
         bool print_eol; /* Flag to print eol after response */
         bool cmd_echo; /* Flag to print a command echo before the response */
         bool cmd_echo_request; /* Flag if echo is requested */
+        bool should_urc_echo; /* Flag if echo should come before urc */
 
         bool require_string_quotes; /* whether buffer string var data has to be encapsulated by quotes */
 
@@ -425,9 +426,10 @@ cat_status cat_is_unsolicited_buffer_full(struct cat_object *self);
  * @param self pointer to at command parser object
  * @param cmd pointer to command structure regarding which unsolicited event applies to
  * @param type type of operation (only CAT_CMD_TYPE_READ and CAT_CMD_TYPE_TEST are allowed)
+ * @param echo Set to true if the command echo should be printed before the urc.
  * @return according to cat_return_state enum definitions
  */
-cat_status cat_trigger_unsolicited_event(struct cat_object *self, struct cat_command const *cmd, cat_cmd_type type);
+cat_status cat_trigger_unsolicited_event(struct cat_object *self, struct cat_command const *cmd, cat_cmd_type type, bool echo);
 
 /**
  * Function sends unsolicited read event message.
@@ -436,9 +438,10 @@ cat_status cat_trigger_unsolicited_event(struct cat_object *self, struct cat_com
  * 
  * @param self pointer to at command parser object
  * @param cmd pointer to command structure regarding which unsolicited read applies to
+ * @param echo Set to true if the command echo should be printed before the urc.
  * @return according to cat_return_state enum definitions
  */
-cat_status cat_trigger_unsolicited_read(struct cat_object *self, struct cat_command const *cmd);
+cat_status cat_trigger_unsolicited_read(struct cat_object *self, struct cat_command const *cmd, bool echo);
 
 /**
  * Function sends unsolicited test event message.
@@ -447,9 +450,10 @@ cat_status cat_trigger_unsolicited_read(struct cat_object *self, struct cat_comm
  * 
  * @param self pointer to at command parser object
  * @param cmd pointer to command structure regarding which unsolicited test applies to
+ * @param echo Set to true if the command echo should be printed before the urc.
  * @return according to cat_return_state enum definitions
  */
-cat_status cat_trigger_unsolicited_test(struct cat_object *self, struct cat_command const *cmd);
+cat_status cat_trigger_unsolicited_test(struct cat_object *self, struct cat_command const *cmd, bool echo);
 
 /**
  * Function used to exit from hold state with OK/ERROR response and back to idle state.
