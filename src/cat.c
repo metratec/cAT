@@ -2440,6 +2440,42 @@ static cat_status process_test_loop(struct cat_object *self, cat_fsm_type fsm)
                         assert(false);
                 }
                 break;
+        case CAT_RETURN_STATE_DATA_FIRST:
+                switch (fsm) {
+                case CAT_FSM_TYPE_ATCMD:
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS, false, false);
+                        break;
+                case CAT_FSM_TYPE_UNSOLICITED:
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS, false, false);
+                        break;
+                default:
+                        assert(false);
+                }
+                break;
+        case CAT_RETURN_STATE_DATA_CONTD:
+                switch (fsm) {
+                case CAT_FSM_TYPE_ATCMD:
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS, true, false);
+                        break;
+                case CAT_FSM_TYPE_UNSOLICITED:
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS, true, false);
+                        break;
+                default:
+                        assert(false);
+                }
+                break;
+        case CAT_RETURN_STATE_DATA_LAST:
+                switch (fsm) {
+                case CAT_FSM_TYPE_ATCMD:
+                        start_flush_io_buffer(self, CAT_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS, true, true);
+                        break;
+                case CAT_FSM_TYPE_UNSOLICITED:
+                        unsolicited_start_flush_io_buffer(self, CAT_UNSOLICITED_STATE_AFTER_FLUSH_FORMAT_TEST_ARGS, true, true);
+                        break;
+                default:
+                        assert(false);
+                }
+                break;
         case CAT_RETURN_STATE_NEXT:
                 start_processing_format_test_args(self, fsm);
                 break;
