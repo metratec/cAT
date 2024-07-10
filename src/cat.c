@@ -1396,6 +1396,9 @@ static int validate_uint_range(struct cat_object *self, uint64_t val)
                         return -1;
                 *(uint32_t *)(self->var->data) = val;
                 break;
+        case 8:
+                *(uint64_t *)(self->var->data) = val;
+                break;
         default:
                 return -1;
         }
