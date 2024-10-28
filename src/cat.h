@@ -359,6 +359,7 @@ struct cat_object {
         bool should_urc_echo; /* Flag if echo should come before urc */
 
         bool require_string_quotes; /* whether buffer string var data has to be encapsulated by quotes */
+        bool allow_partial_matches; /* whether to allow partial command name matches */
 
         struct cat_unsolicited_fsm unsolicited_fsm;
 };

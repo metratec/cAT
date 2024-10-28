@@ -508,6 +508,7 @@ void cat_init(struct cat_object *self, const struct cat_descriptor *desc, const 
         self->should_urc_echo = false;
         memset(self->desc->echo_buf, 0, self->desc->echo_buf_size);
         self->echo_len = 0;
+        self->allow_partial_matches = false;
 
         reset_state(self);
 
@@ -983,7 +984,7 @@ static cat_status search_command(struct cat_object *self)
                 if (self->cmd == NULL) {
                         self->state = (self->current_char == '\n') ? CAT_STATE_COMMAND_NOT_FOUND : CAT_STATE_ERROR;
                 } else {
-                        self->state = (self->partial_cntr == 1) ? CAT_STATE_COMMAND_FOUND : CAT_STATE_COMMAND_NOT_FOUND;
+                        self->state = (self->allow_partial_matches && self->partial_cntr == 1) ? CAT_STATE_COMMAND_FOUND : CAT_STATE_COMMAND_NOT_FOUND;
                 }
         }
 
@@ -1085,7 +1086,15 @@ static cat_status command_not_found(struct cat_object *self)
 {
         assert(self != NULL);
 
-        ack_error(self);
+        // early ack when command is not found will cause the parser to interpret
+        // remaining write args as a new command which leads to a double ERROR output
+        // -> avoid by setting error state here and not sending ack
+        if (self->cmd_type == CAT_CMD_TYPE_WRITE) {
+                self->state = CAT_STATE_ERROR;
+        } else {
+                ack_error(self);
+        }
+
         return CAT_STATUS_BUSY;
 }
 
