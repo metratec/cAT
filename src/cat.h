@@ -345,6 +345,7 @@ struct cat_object {
         cat_state write_state_after; /* parser state to set after flush io write */
 
         bool require_string_quotes; /* whether buffer string var data has to be encapsulated by quotes */
+        bool allow_partial_matches; /* whether to allow partial command name matches */
 
         struct cat_unsolicited_fsm unsolicited_fsm;
 };
