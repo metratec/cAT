@@ -845,12 +845,18 @@ static void set_cmd_state(struct cat_object *self, size_t i, uint8_t state)
 
 static cat_status update_command(struct cat_object *self)
 {
-        assert(self != NULL);
-
-        struct cat_command const *cmd = get_command_by_index(self, self->index);
+        struct cat_command const *cmd;
         size_t cmd_name_len;
 
-        if (get_cmd_state(self, self->index) != CAT_CMD_STATE_NOT_MATCH) {
+        assert(self != NULL);
+
+        /* The whole table is updated in one call, so the number of cat_service() calls
+         * per command does not grow with the number of registered commands */
+        for (self->index = 0; self->index < self->commands_num; self->index++) {
+                if (get_cmd_state(self, self->index) == CAT_CMD_STATE_NOT_MATCH)
+                        continue;
+
+                cmd = get_command_by_index(self, self->index);
                 cmd_name_len = strlen(cmd->name);
 
                 if (self->length > cmd_name_len) {
@@ -862,10 +868,8 @@ static cat_status update_command(struct cat_object *self)
                 }
         }
 
-        if (++self->index >= self->commands_num) {
-                self->index = 0;
-                self->state = CAT_STATE_PARSE_COMMAND_CHAR;
-        }
+        self->index = 0;
+        self->state = CAT_STATE_PARSE_COMMAND_CHAR;
 
         return CAT_STATUS_BUSY;
 }
@@ -962,11 +966,14 @@ static cat_status wait_test_acknowledge(struct cat_object *self)
 
 static cat_status search_command(struct cat_object *self)
 {
+        uint8_t cmd_state;
+
         assert(self != NULL);
 
-        uint8_t cmd_state = get_cmd_state(self, self->index);
+        /* The whole table is searched in one call, for the same reason as in update_command() */
+        for (; self->index < self->commands_num; self->index++) {
+                cmd_state = get_cmd_state(self, self->index);
 
-        if (cmd_state != CAT_CMD_STATE_NOT_MATCH) {
                 if (cmd_state == CAT_CMD_STATE_PARTIAL_MATCH) {
                         if ((self->cmd != NULL) && ((self->index + 1) == self->commands_num)) {
                                 self->state = (self->current_char == '\n') ? CAT_STATE_COMMAND_NOT_FOUND : CAT_STATE_ERROR;
@@ -981,12 +988,10 @@ static cat_status search_command(struct cat_object *self)
                 }
         }
 
-        if (++self->index >= self->commands_num) {
-                if (self->cmd == NULL) {
-                        self->state = (self->current_char == '\n') ? CAT_STATE_COMMAND_NOT_FOUND : CAT_STATE_ERROR;
-                } else {
-                        self->state = (self->allow_partial_matches && self->partial_cntr == 1) ? CAT_STATE_COMMAND_FOUND : CAT_STATE_COMMAND_NOT_FOUND;
-                }
+        if (self->cmd == NULL) {
+                self->state = (self->current_char == '\n') ? CAT_STATE_COMMAND_NOT_FOUND : CAT_STATE_ERROR;
+        } else {
+                self->state = (self->allow_partial_matches && self->partial_cntr == 1) ? CAT_STATE_COMMAND_FOUND : CAT_STATE_COMMAND_NOT_FOUND;
         }
 
         return CAT_STATUS_BUSY;
