@@ -287,6 +287,7 @@ cat_status cat_is_unsolicited_event_buffered(struct cat_object *self, struct cat
 static const char *get_new_line_chars(struct cat_object *self)
 {
         static const char *crlf = "\r\n";
+        (void)self;
         return crlf;
 }
 
@@ -2629,7 +2630,7 @@ static cat_status process_io_write(struct cat_object *self)
                 case CAT_WRITE_STATE_ECHO:
                         self->position = 0;
                         self->echo_len = 0;
-                        self->write_buf = self->desc->echo_buf;
+                        self->write_buf = (const char *)self->desc->echo_buf;
                         self->write_state = CAT_WRITE_STATE_BEFORE;
                         break;
                 case CAT_WRITE_STATE_BEFORE:
@@ -2669,7 +2670,7 @@ static cat_status unsolicited_process_io_write(struct cat_object *self)
                 case CAT_WRITE_STATE_ECHO:
                         self->echo_len = 0;
                         self->unsolicited_fsm.position = 0;
-                        self->unsolicited_fsm.write_buf = self->desc->echo_buf;
+                        self->unsolicited_fsm.write_buf = (const char *)self->desc->echo_buf;
                         self->unsolicited_fsm.write_state = CAT_WRITE_STATE_BEFORE;
                         break;
                 case CAT_WRITE_STATE_BEFORE:

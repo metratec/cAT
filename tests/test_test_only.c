@@ -160,13 +160,13 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nap_test\n\nOK\n\nERROR\n\nERROR\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nap_test\r\n\r\nOK\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nERROR\r\n") == 0);
         assert(strcmp(cmd_results, " test:AP1") == 0);
 
         prepare_input(test_case_2);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nap_test\n\nOK\n\nap_read\n\nOK\n\nOK\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nap_test\r\n\r\nOK\r\n\r\nap_read\r\nOK\r\n\r\nOK\r\n\r\nOK\r\n") == 0);
         assert(strcmp(cmd_results, " test:AP2 read:AP2 write:AP2 run:AP2") == 0);
 
         return 0;

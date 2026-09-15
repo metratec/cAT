@@ -154,10 +154,12 @@ int main(int argc, char **argv)
 
         cat_init(&at, &desc, &iface, NULL);
 
+        at.allow_partial_matches = true;
+
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\r\nOK\r\n\nERROR\n\nERROR\n\r\nA=A-val\r\n\r\nOK\r\n\nERROR\n\nAP=\n\nOK\n\nERROR\n\nERROR\n\nERROR\n\nERROR\n\r\nERROR\r\n\r\nOK\r\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nA=A-val\r\nOK\r\n\r\nERROR\r\n\r\nAP: \r\nOK\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nOK\r\n") == 0);
         assert(strcmp(run_results, " A_A") == 0);
         assert(strcmp(read_results, " A:A AP:AP +TEST:+TEST +TEST:+TEST") == 0);
 

@@ -51,7 +51,7 @@ static cat_return_state cmd_write(const struct cat_command *cmd, const uint8_t *
         strcat(cmd_results, cmd->name);
 
         if (var_x < 2) {
-                s = cat_trigger_unsolicited_read(&at, &u_cmds[var_x]);
+                s = cat_trigger_unsolicited_read(&at, &u_cmds[var_x], false);
                 assert(s == CAT_STATUS_OK);
 
                 return CAT_RETURN_STATE_HOLD;
@@ -69,7 +69,7 @@ static cat_return_state cmd1_read(const struct cat_command *cmd, uint8_t *data, 
 
         if (var_u1 > 0) {
                 var_u1--;
-                s = cat_trigger_unsolicited_read(&at, cmd);
+                s = cat_trigger_unsolicited_read(&at, cmd, false);
                 assert(s == CAT_STATUS_OK);
                 return CAT_RETURN_STATE_DATA_OK;
         }
@@ -86,7 +86,7 @@ static cat_return_state cmd2_read(const struct cat_command *cmd, uint8_t *data, 
 
         if (var_u2 > 0) {
                 var_u2--;
-                s = cat_trigger_unsolicited_read(&at, cmd);
+                s = cat_trigger_unsolicited_read(&at, cmd, false);
                 assert(s == CAT_STATUS_OK);
                 return CAT_RETURN_STATE_DATA_OK;
         }
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+U1CMD=2\n\n+U1CMD=1\n\nOK\n\n+U2CMD=3\n\n+U2CMD=2\n\n+U2CMD=1\n\n+U2CMD=0\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+U1CMD: 2\r\n\r\n+U1CMD: 1\r\n\r\nOK\r\n\r\n+U2CMD: 3\r\n\r\n+U2CMD: 2\r\n\r\n+U2CMD: 1\r\n\r\n+U2CMD: 0\r\n\r\nOK\r\n") == 0);
         assert(strcmp(cmd_results, " write:+CMD read1:+U1CMD read1:+U1CMD read1:+U1CMD write:+CMD read2:+U2CMD read2:+U2CMD read2:+U2CMD read2:+U2CMD") == 0);
         assert(strcmp(var_read_results, " var_read:U1 var_read:U1 var_read:U1 var_read:U2 var_read:U2 var_read:U2 var_read:U2") == 0);
 

@@ -51,7 +51,7 @@ static cat_return_state cmd_read(const struct cat_command *cmd, uint8_t *data, s
         strcat(read_results, cmd->name);
 
         if (strcmp(cmd->name, "+CMD") == 0) {
-                s = cat_trigger_unsolicited_read(&at, &u_cmds[1]);
+                s = cat_trigger_unsolicited_read(&at, &u_cmds[1], false);
                 assert(s == CAT_STATUS_OK);
         }
 
@@ -190,7 +190,7 @@ int main(int argc, char **argv)
         assert(s == CAT_STATUS_OK);
         s = cat_is_unsolicited_event_buffered(&at, &u_cmds[0], CAT_CMD_TYPE_NONE);
         assert(s == CAT_STATUS_OK);
-        s = cat_trigger_unsolicited_event(&at, &u_cmds[0], CAT_CMD_TYPE_READ);
+        s = cat_trigger_unsolicited_event(&at, &u_cmds[0], CAT_CMD_TYPE_READ, false);
         assert(s == CAT_STATUS_OK);
         s = cat_is_unsolicited_event_buffered(&at, &u_cmds[0], CAT_CMD_TYPE_READ);
         assert(s == CAT_STATUS_BUSY);
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
         assert(s == CAT_STATUS_BUSY);
         s = cat_is_unsolicited_buffer_full(&at);
         assert(s == CAT_STATUS_OK);
-        s = cat_trigger_unsolicited_event(&at, &u_cmds[1], CAT_CMD_TYPE_READ);
+        s = cat_trigger_unsolicited_event(&at, &u_cmds[1], CAT_CMD_TYPE_READ, false);
         assert(s == CAT_STATUS_OK);
         s = cat_is_unsolicited_event_buffered(&at, &u_cmds[0], CAT_CMD_TYPE_READ);
         assert(s == CAT_STATUS_BUSY);
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
         assert(s == CAT_STATUS_BUSY);
         s = cat_is_unsolicited_buffer_full(&at);
         assert(s == CAT_STATUS_ERROR_BUFFER_FULL);
-        s = cat_trigger_unsolicited_read(&at, &u_cmds[1]);
+        s = cat_trigger_unsolicited_read(&at, &u_cmds[1], false);
         assert(s == CAT_STATUS_ERROR_BUFFER_FULL);
         s = cat_is_unsolicited_event_buffered(&at, &u_cmds[0], CAT_CMD_TYPE_READ);
         assert(s == CAT_STATUS_BUSY);
@@ -227,7 +227,7 @@ int main(int argc, char **argv)
 
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+U1CMD=2\n\n+CMD=1\n\n+U2CMD=3\n\nOK\n\n+U2CMD=3\n") == 0);
+        assert(strcmp(ack_results, "\r\n+U1CMD: 2\r\n\r\n+CMD: 1\r\n+U2CMD: 3\r\n\r\nOK\r\n\r\n+U2CMD: 3\r\n") == 0);
         assert(strcmp(read_results, " read:+U1CMD read:+CMD read:+U2CMD read:+U2CMD") == 0);
         assert(strcmp(var_read_results, " var_read:U1 var_read:X var_read:U2 var_read:U2") == 0);
 

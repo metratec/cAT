@@ -181,7 +181,7 @@ int main(int argc, char **argv)
                 cmd = cat_get_processed_command(&at, CAT_FSM_TYPE_UNSOLICITED);
                 if ((s == CAT_STATUS_OK) && (cmd == NULL)) {
                         var_u1 = events;
-                        s = cat_trigger_unsolicited_event(&at, &u_cmds[0], CAT_CMD_TYPE_READ);
+                        s = cat_trigger_unsolicited_event(&at, &u_cmds[0], CAT_CMD_TYPE_READ, false);
                         assert(s == CAT_STATUS_OK);
                         events--;
                 } else {
@@ -203,7 +203,7 @@ int main(int argc, char **argv)
         cmd = cat_get_processed_command(&at, CAT_FSM_TYPE_UNSOLICITED);
         assert(cmd == NULL);
 
-        assert(strcmp(ack_results, "\n+UCMD=4\n\n+CMD=1\n\n+UCMD=3\n\nOK\n\n+UCMD=2\n\n+UCMD=1\n") == 0);
+        assert(strcmp(ack_results, "\r\n+UCMD: 4\r\n\r\n+CMD: 1\r\n+UCMD: 3\r\n\r\nOK\r\n\r\n+UCMD: 2\r\n\r\n+UCMD: 1\r\n") == 0);
         assert(strcmp(read_results, " read:+UCMD read:+CMD read:+UCMD read:+UCMD read:+UCMD") == 0);
         assert(strcmp(var_read_results, " var_read:U1 var_read:X var_read:U1 var_read:U1 var_read:U1") == 0);
 

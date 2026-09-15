@@ -127,7 +127,7 @@ static cat_return_state scan_read(const struct cat_command *cmd, uint8_t *data, 
                 return CAT_RETURN_STATE_HOLD_EXIT_OK;
 
         load_scan_results(scan_index);
-        cat_trigger_unsolicited_read(&at, &scan_cmd);
+        cat_trigger_unsolicited_read(&at, &scan_cmd, false);
 
         return CAT_RETURN_STATE_DATA_NEXT;
 }
@@ -146,7 +146,7 @@ static cat_return_state start_write(const struct cat_command *cmd, const uint8_t
         scan_index = 0;
 
         load_scan_results(scan_index);
-        cat_trigger_unsolicited_read(&at, &scan_cmd);
+        cat_trigger_unsolicited_read(&at, &scan_cmd, false);
 
         return CAT_RETURN_STATE_HOLD;
 }

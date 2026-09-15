@@ -204,13 +204,13 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\r\n+SET=-1,255,0xAA,0x0123,0xFF001234,12345678,\"\\\\\\\"test\\n\"\r\n\r\nOK\r\n") == 0);
+        assert(strcmp(ack_results, "\r\n+SET: -1,255,0xAA,0x0123,0xFF001234,12345678,\"\\\\\\\"test\\n\"\r\nOK\r\n") == 0);
         assert(common_cntr == 7);
 
         prepare_input(test_case_2);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+TEST=test\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+TEST=test\r\nOK\r\n") == 0);
         assert(common_cntr == 7);
 
         return 0;
