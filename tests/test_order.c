@@ -200,7 +200,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nOK\n\nOK\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n\r\nOK\r\n\r\nOK\r\n") == 0);
         assert(strcmp(run_results, " E:E E0:E0 E1:E1") == 0);
 
         cat_init(&at, &desc_2, &iface, NULL);
@@ -208,7 +208,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nOK\n\nOK\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n\r\nOK\r\n\r\nOK\r\n") == 0);
         assert(strcmp(run_results, " E:E E0:E0 E1:E1") == 0);
 
         cat_init(&at, &desc_3, &iface, NULL);
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nOK\n\nOK\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n\r\nOK\r\n\r\nOK\r\n") == 0);
         assert(strcmp(run_results, " E:E E0:E0 E1:E1") == 0);
 
         return 0;

@@ -141,7 +141,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nERROR\n\nOK\n\nERROR\n\nOK\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n\r\nOK\r\n\r\nERROR\r\n\r\nOK\r\n\r\nOK\r\n") == 0);
         assert(strcmp(write_results, " CMD:aa CMD:12345678 CMD:ffAA") == 0);
 
         assert(var[0] == 0xFF);
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_2);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nERROR\n\nOK\n\nERROR\n\nOK\n\nOK\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n\r\nOK\r\n\r\nERROR\r\n\r\nOK\r\n\r\nOK\r\n\r\nERROR\r\n") == 0);
         assert(strcmp(write_results, " CMD:11 CMD:87654321 CMD:0001") == 0);
 
         assert(var[0] == 0x11);

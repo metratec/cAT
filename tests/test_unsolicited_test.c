@@ -50,7 +50,7 @@ static cat_return_state cmd_test(const struct cat_command *cmd, uint8_t *data, s
         strcat(read_results, cmd->name);
 
         if (strcmp(cmd->name, "+CMD") == 0) {
-                s = cat_trigger_unsolicited_test(&at, &u_cmds[1]);
+                s = cat_trigger_unsolicited_test(&at, &u_cmds[1], false);
                 assert(s == CAT_STATUS_OK);
         }
 
@@ -173,16 +173,16 @@ int main(int argc, char **argv)
 
         s = cat_is_unsolicited_buffer_full(&at);
         assert(s == CAT_STATUS_OK);
-        s = cat_trigger_unsolicited_event(&at, &u_cmds[0], CAT_CMD_TYPE_TEST);
+        s = cat_trigger_unsolicited_event(&at, &u_cmds[0], CAT_CMD_TYPE_TEST, false);
         assert(s == CAT_STATUS_OK);
         s = cat_is_unsolicited_buffer_full(&at);
         assert(s == CAT_STATUS_ERROR_BUFFER_FULL);
-        s = cat_trigger_unsolicited_test(&at, &u_cmds[1]);
+        s = cat_trigger_unsolicited_test(&at, &u_cmds[1], false);
         assert(s == CAT_STATUS_ERROR_BUFFER_FULL);
 
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+U1CMD=<U1:INT32[RW]>\n\n+CMD=<X:INT32[RW]>\n\n+U2CMD=<U2:INT32[RW]>\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+U1CMD=<U1:INT32[RW]>\r\n\r\n+CMD=<X:INT32[RW]>\r\n\r\n+U2CMD=<U2:INT32[RW]>\r\n\r\nOK\r\n") == 0);
         assert(strcmp(read_results, " test:+U1CMD test:+CMD test:+U2CMD") == 0);
 
         return 0;

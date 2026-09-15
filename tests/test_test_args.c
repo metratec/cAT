@@ -433,27 +433,27 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+SET=<x:INT8[RW]>,<y:INT16[RW]>,<INT32[RW]>,<UINT8[RW]>,<UINT16[RW]>,<UINT32[RW]>,<HEX8[RW]>,<HEX16[RW]>,<HEX32[RW]>,<HEXBUF[RW]>,<msg:STRING[RW]>\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+SET=<x:INT8[RW]>,<y:INT16[RW]>,<INT32[RW]>,<UINT8[RW]>,<UINT16[RW]>,<UINT32[RW]>,<HEX8[RW]>,<HEX16[RW]>,<HEX32[RW]>,<HEXBUF[RW]>,<msg:STRING[RW]>\r\n\r\nOK\r\n") == 0);
 
         prepare_input(test_case_1_ro);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+SETRO=<x:INT8[RO]>,<y:INT16[RO]>,<INT32[RO]>,<UINT8[RO]>,<UINT16[RO]>,<UINT32[RO]>,<HEX8[RO]>,<HEX16[RO]>,<HEX32[RO]>,<HEXBUF[RO]>,<msg:STRING[RO]>\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+SETRO=<x:INT8[RO]>,<y:INT16[RO]>,<INT32[RO]>,<UINT8[RO]>,<UINT16[RO]>,<UINT32[RO]>,<HEX8[RO]>,<HEX16[RO]>,<HEX32[RO]>,<HEXBUF[RO]>,<msg:STRING[RO]>\r\n\r\nOK\r\n") == 0);
 
         prepare_input(test_case_1_wo);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+SETWO=<x:INT8[WO]>,<y:INT16[WO]>,<INT32[WO]>,<UINT8[WO]>,<UINT16[WO]>,<UINT32[WO]>,<HEX8[WO]>,<HEX16[WO]>,<HEX32[WO]>,<HEXBUF[WO]>,<msg:STRING[WO]>\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+SETWO=<x:INT8[WO]>,<y:INT16[WO]>,<INT32[WO]>,<UINT8[WO]>,<UINT16[WO]>,<UINT32[WO]>,<HEX8[WO]>,<HEX16[WO]>,<HEX32[WO]>,<HEXBUF[WO]>,<msg:STRING[WO]>\r\n\r\nOK\r\n") == 0);
 
         prepare_input(test_case_2);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+TEST=<var:INT8[RW]>\ntest_desc\ntest\n\nOK\n\r\n+TEST2=<var:INT8[RW]>\r\ntest2_desc\r\n\r\nOK\r\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\n+TEST=<var:INT8[RW]>\r\ntest_desc\ntest\r\n\r\nOK\r\n\r\n+TEST2=<var:INT8[RW]>\r\ntest2_desc\r\n\r\nOK\r\n\r\nERROR\r\n") == 0);
 
         prepare_input(test_case_3);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\ntest1\n\nOK\n\ntest1\n\nOK\n\r\n+ZZ3=\r\nzz3_desctest2\r\n\r\nOK\r\n") == 0);
+        assert(strcmp(ack_results, "\r\ntest1\r\n\r\nOK\r\n\r\ntest1\r\n\r\nOK\r\n\r\n+ZZ3=\r\nzz3_desctest2\r\n\r\nOK\r\n") == 0);
 
         return 0;
 }

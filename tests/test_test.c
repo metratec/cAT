@@ -176,7 +176,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\r\nOK\r\n\nOK\n\nAP=\n\nOK\n\nERROR\n\nOK\n\nOK\n\nERROR\n\nA=A-val\n\nOK\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n\r\nOK\r\n\r\nAP=\r\n\r\nOK\r\n\r\nERROR\r\n\r\nOK\r\n\r\nOK\r\n\r\nERROR\r\n\r\nA=A-val\r\n\r\nOK\r\n\r\nERROR\r\n") == 0);
         assert(strcmp(test_results, " AP:AP AP_W:AP APW:APW +TEST:+TEST A:A") == 0);
 
         return 0;

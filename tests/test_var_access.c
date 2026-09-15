@@ -422,35 +422,35 @@ int main(int argc, char **argv)
         prepare_input("\nAT#HELP\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nAT+VRW?\nAT+VRW=\nAT+VRW=?\n\nAT+VRO?\nAT+VRO=?\n\nAT+VWO=\nAT+VWO=?\n\nAT+MRO?\nAT+MRO=\nAT+MRO=?\n\nAT+MWO?\nAT+MWO=\nAT+MWO=?\n\nAT#HELP\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nAT+VRW?\r\nAT+VRW=\r\nAT+VRW=?\r\n\r\nAT+VRO?\r\nAT+VRO=?\r\n\r\nAT+VWO=\r\nAT+VWO=?\r\n\r\nAT+MRO?\r\nAT+MRO=\r\nAT+MRO=?\r\n\r\nAT+MWO?\r\nAT+MWO=\r\nAT+MWO=?\r\n\r\nAT#HELP\r\n\r\nOK\r\n") == 0);
 
         prepare_input("\nAT+VRW=?\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+VRW=<INT8[RW]>,<INT8[RO]>,<INT8[WO]>\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+VRW=<INT8[RW]>,<INT8[RO]>,<INT8[WO]>\r\n\r\nOK\r\n") == 0);
 
         prepare_input("\nAT+VRO=?\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+VRO=<INT8[RO]>\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+VRO=<INT8[RO]>\r\n\r\nOK\r\n") == 0);
 
         prepare_input("\nAT+VWO=?\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+VWO=<INT8[WO]>\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+VWO=<INT8[WO]>\r\n\r\nOK\r\n") == 0);
 
         var2 = 1;
         prepare_input("\nAT+VRO=1\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n") == 0);
         assert(var2 == 1);
 
         var3 = 3;
         prepare_input("\nAT+VWO?\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n") == 0);
         assert(var3 == 3);
 
         var1 = -1;
@@ -462,14 +462,14 @@ int main(int argc, char **argv)
         prepare_input("\nAT+VRW?\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+VRW=-1,-2,0\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+VRW: -1,-2,0\r\n\r\nOK\r\n") == 0);
         assert(var2_write_cntr == 0);
         assert(var3_read_cntr == 1);
 
         prepare_input("\nAT+VRW=1,2,3\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n") == 0);
         assert(var2_write_cntr == 1);
         assert(var3_read_cntr == 1);
         assert(var1 == 1);
@@ -495,12 +495,12 @@ int main(int argc, char **argv)
         prepare_input("\nAT+MWO?\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+MWO=100,0,0,0,0,0,0,0x00,0x0000,0x00000000,00000000,\"\"\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+MWO: 100,0,0,0,0,0,0,0x00,0x0000,0x00000000,00000000,\"\"\r\n\r\nOK\r\n") == 0);
 
         prepare_input("\nAT+MWO=1,2,3,4,5,6,7,0x08,0x0009,0x0000000A,01020304,\"abc\"\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n") == 0);
         assert(var1 == 1);
         assert(var_int8 == 2);
         assert(var_int16 == 3);
@@ -520,12 +520,12 @@ int main(int argc, char **argv)
         prepare_input("\nAT+MRO?\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+MRO=1,2,3,4,5,6,7,0x08,0x0009,0x0000000A,01020304,\"abc\"\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+MRO: 1,2,3,4,5,6,7,0x08,0x0009,0x0000000A,01020304,\"abc\"\r\n\r\nOK\r\n") == 0);
 
         prepare_input("\nAT+MRO=2,0,0,0,0,0,0,0x00,0x0000,0x00000000,00000000,\"cba\"\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n") == 0);
         assert(var1 == 2);
         assert(var_int8 == 2);
         assert(var_int16 == 3);

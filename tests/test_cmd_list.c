@@ -334,7 +334,7 @@ int main(int argc, char **argv)
         prepare_input("\nAT#HELP\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nAT+V1?\nAT+V1=\nAT+V1=?\n\nAT+V1RO?\nAT+V1RO=?\n\nAT+V1RW=\nAT+V1RW=?\n\nAT+V11?\nAT+V11=\nAT+V11=?\n\nAT+V11RO?\nAT+V11RO=\nAT+V11RO=?\n\nAT+V11WO?\nAT+V11WO=\nAT+V11WO=?\n\nAT+V2?\nAT+V2=\nAT+V2=?\n\nAT+V3?\nAT+V3=\nAT+V3=?\n\nAT+V4?\nAT+V4=\nAT+V4=?\n\nAT+V5\nAT+V5?\nAT+V5=\nAT+V5=?\n\nAT+S2=\n\nAT+S3?\nAT+S3=\n\nAT+S4?\nAT+S4=\nAT+S4=?\n\nAT+S5\nAT+S5?\nAT+S5=\nAT+S5=?\n\nAT+T1=?\n\nAT#HELP\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nAT+V1?\r\nAT+V1=\r\nAT+V1=?\r\n\r\nAT+V1RO?\r\nAT+V1RO=?\r\n\r\nAT+V1RW=\r\nAT+V1RW=?\r\n\r\nAT+V11?\r\nAT+V11=\r\nAT+V11=?\r\n\r\nAT+V11RO?\r\nAT+V11RO=\r\nAT+V11RO=?\r\n\r\nAT+V11WO?\r\nAT+V11WO=\r\nAT+V11WO=?\r\n\r\nAT+V2?\r\nAT+V2=\r\nAT+V2=?\r\n\r\nAT+V3?\r\nAT+V3=\r\nAT+V3=?\r\n\r\nAT+V4?\r\nAT+V4=\r\nAT+V4=?\r\n\r\nAT+V5\r\nAT+V5?\r\nAT+V5=\r\nAT+V5=?\r\n\r\nAT+S2=\r\n\r\nAT+S3?\r\nAT+S3=\r\n\r\nAT+S4?\r\nAT+S4=\r\nAT+S4=?\r\n\r\nAT+S5\r\nAT+S5?\r\nAT+S5=\r\nAT+S5=?\r\n\r\nAT+T1=?\r\n\r\nAT#HELP\r\n\r\nOK\r\n") == 0);
 
         return 0;
 }

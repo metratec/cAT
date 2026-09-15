@@ -136,17 +136,19 @@ int main(int argc, char **argv)
 
         cat_init(&at, &desc, &iface, NULL);
 
+        at.allow_partial_matches = true;
+
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\r\nERROR\r\n\nOK\n\nOK\n\r\nOK\r\n\nOK\n\nERROR\n\nERROR\n\r\nERROR\r\n\nERROR\n\nERROR\n\r\nERROR\r\n\r\nOK\r\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n\r\nOK\r\n\r\nOK\r\n\r\nOK\r\n\r\nOK\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nERROR\r\n\r\nOK\r\n") == 0);
         assert(strcmp(run_results, " +TEST:+TEST A:A AP:AP +TEST:+TEST") == 0);
 
         prepare_input("\nAT\n");
         while (cat_service(&at) != 0) {};
 
         assert(cat_is_busy(&at) == 0);
-        assert(strcmp(ack_results, "\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n") == 0);
         assert(strcmp(run_results, "") == 0);
 
         prepare_input("\nAT+te");
@@ -160,7 +162,7 @@ int main(int argc, char **argv)
         while (cat_service(&at) != 0) {};
 
         assert(cat_is_busy(&at) == 0);
-        assert(strcmp(ack_results, "\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n") == 0);
         assert(strcmp(run_results, " +TEST:+TEST") == 0);
 
         struct cat_command *cmd;
@@ -173,7 +175,7 @@ int main(int argc, char **argv)
         prepare_input("\nATA\n\nATAP\n\nAT+TEST\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nOK\n\nOK\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n\r\nOK\r\n\r\nERROR\r\n") == 0);
         assert(strcmp(run_results, " AP:AP AP:AP") == 0);
 
         struct cat_command_group *cmd_group;
@@ -188,7 +190,7 @@ int main(int argc, char **argv)
         prepare_input("\nATA\n\nATAP\n\nAT+TEST\n");
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nERROR\n\nERROR\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n\r\nERROR\r\n\r\nERROR\r\n") == 0);
         assert(strcmp(run_results, "") == 0);
 
         return 0;

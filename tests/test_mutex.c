@@ -157,7 +157,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nOK\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n\r\nOK\r\n") == 0);
         assert(strcmp(run_results, " +TEST:+TEST") == 0);
 
         mutex_ret_lock = 1;

@@ -172,7 +172,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nERROR\n\nOK\n\nOK\n\nOK\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n\r\nOK\r\n\r\nOK\r\n\r\nOK\r\n\r\nERROR\r\n") == 0);
         assert(strcmp(write_results, " CMD:0x0 CMD:0x01 CMD:0x0ff") == 0);
 
         assert(var1 == 255);
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_2);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nERROR\n\nOK\n\nOK\n\nOK\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n\r\nOK\r\n\r\nOK\r\n\r\nOK\r\n\r\nERROR\r\n") == 0);
         assert(strcmp(write_results, " CMD:0x1,0x00 CMD:0x2,0xFFf CMD:0x3,0xFFFF") == 0);
 
         assert(var1 == 4);
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_3);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nERROR\n\nOK\n\nOK\n\nOK\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n\r\nOK\r\n\r\nOK\r\n\r\nOK\r\n\r\nERROR\r\n") == 0);
         assert(strcmp(write_results, " CMD:0x0,0x0,0x0000000000000 CMD:0x0,0x0,0x1 CMD:0x0,0x0,0xffffFFFF") == 0);
 
         assert(var1 == 0x10);

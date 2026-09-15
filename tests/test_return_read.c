@@ -65,7 +65,7 @@ static cat_return_state cmd_read(const struct cat_command *cmd, uint8_t *data, s
                         if (var_x > 2)
                                 ret = CAT_RETURN_STATE_DATA_OK;
                 } else if (ret == CAT_RETURN_STATE_HOLD) {
-                        cat_trigger_unsolicited_read(&at, cmd);
+                        cat_trigger_unsolicited_read(&at, cmd, false);
                 }
         }
 
@@ -155,35 +155,35 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\nERROR\r\n") == 0);
         assert(strcmp(cmd_results, " read:+CMD") == 0);
 
         ret = CAT_RETURN_STATE_DATA_OK;
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+CMD=1\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+CMD: 1\r\nOK\r\n") == 0);
         assert(strcmp(cmd_results, " read:+CMD") == 0);
 
         ret = CAT_RETURN_STATE_DATA_NEXT;
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+CMD=1\n\n+CMD=2\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+CMD: 1\r\n\r\n+CMD: 2\r\nOK\r\n") == 0);
         assert(strcmp(cmd_results, " read:+CMD read:+CMD") == 0);
 
         ret = CAT_RETURN_STATE_NEXT;
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+CMD=2\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+CMD: 2\r\nOK\r\n") == 0);
         assert(strcmp(cmd_results, " read:+CMD read:+CMD") == 0);
 
         ret = CAT_RETURN_STATE_OK;
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\nOK\r\n") == 0);
         assert(strcmp(cmd_results, " read:+CMD") == 0);
 
         ret_error = false;
@@ -191,7 +191,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+CMD=1\n\n+CMD=2\n\ntest\n\nOK\n") == 0);
+        assert(strcmp(ack_results, "\r\n+CMD: 1\r\n\r\n+CMD: 2\r\n\r\ntest\r\n\r\nOK\r\n") == 0);
         assert(strcmp(cmd_results, " read:+CMD read:+CMD read:+CMD read:+CMD read:+CMD") == 0);
 
         ret_error = true;
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
         prepare_input(test_case_1);
         while (cat_service(&at) != 0) {};
 
-        assert(strcmp(ack_results, "\n+CMD=1\n\n+CMD=2\n\ntest\n\nERROR\n") == 0);
+        assert(strcmp(ack_results, "\r\n+CMD: 1\r\n\r\n+CMD: 2\r\n\r\ntest\r\n\r\nERROR\r\n") == 0);
         assert(strcmp(cmd_results, " read:+CMD read:+CMD read:+CMD read:+CMD read:+CMD") == 0);
 
         return 0;
