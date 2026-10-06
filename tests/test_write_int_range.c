@@ -162,6 +162,7 @@ static void prepare_input(const char *text)
 static const char test_case_1[] = "\nAT+SET=-128\nAT+SET=-129\nAT+SET=127\nAT+SET=128\n";
 static const char test_case_2[] = "\nAT+SET=-128,-32768\nAT+SET=-128,-40000\nAT+SET=-128,32767\nAT+SET=-100,40000\n";
 static const char test_case_3[] = "\nAT+SET=0,0,-2147483648\nAT+SET=0,0,-2147483649\nAT+SET=1,1,2147483647\nAT+SET=2,2,2147483648\n";
+static const char test_case_4[] = "\nAT+SET=18446744073709551620\nAT+SET=-18446744073709551612\nAT+SET=4\n";
 
 int main(int argc, char **argv)
 {
@@ -207,6 +208,15 @@ int main(int argc, char **argv)
         assert(var2b == var2);
         assert(var3 == 2147483647);
         assert(var3b == var3);
+
+        /* values past 64 bits must be rejected, not wrapped into range */
+        prepare_input(test_case_4);
+        while (cat_service(&at) != 0) {};
+
+        assert(strcmp(ack_results, "\nERROR\n\nERROR\n\nOK\n") == 0);
+        assert(strcmp(write_results, " CMD:4") == 0);
+        assert(var1 == 4);
+        assert(var1b == var1);
 
 	return 0;
 }

@@ -1094,6 +1094,10 @@ static int parse_int_decimal(struct cat_object *self, int64_t *ret)
                         }
                 } else {
                         if (is_valid_dec_char(ch) != 0) {
+                                /* reject instead of wrapping: the range check
+                                   would otherwise see the wrapped value */
+                                if (val > (INT64_MAX - (ch - '0')) / 10)
+                                        return -1;
                                 ok = 1;
                                 val *= 10;
                                 val += ch - '0';
@@ -1124,6 +1128,10 @@ static int parse_uint_decimal(struct cat_object *self, uint64_t *ret)
                 }
 
                 if (is_valid_dec_char(ch) != 0) {
+                        /* reject instead of wrapping: the range check
+                           would otherwise see the wrapped value */
+                        if (val > (UINT64_MAX - (ch - '0')) / 10)
+                                return -1;
                         ok = 1;
                         val *= 10;
                         val += ch - '0';
@@ -1163,6 +1171,10 @@ static int parse_num_hexadecimal(struct cat_object *self, uint64_t *ret)
                         state = 2;
                 } else if (state >= 2) {
                         if (is_valid_hex_char(ch) != 0) {
+                                /* more than 16 significant digits would
+                                   shift out of the 64-bit value */
+                                if ((val >> 60) != 0)
+                                        return -1;
                                 state = 3;
                                 val <<= 4;
                                 val += convert_hex_char_to_value(ch);
